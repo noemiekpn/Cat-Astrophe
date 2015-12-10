@@ -16,7 +16,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".LevelSelectionActivity" />
-        <activity android:name=".MazeActivity" />
+        <activity android:name=".MazeActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <activity android:name=".ResultsActivity"></activity>
     </application>
 

@@ -1,5 +1,6 @@
 package catladies.cat_astrophe;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,38 +13,46 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.Gallery;
+import android.view.Window;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 public class MazeActivity extends AppCompatActivity {
     private final int MAZE_SIZE = 8;
-    int startPos;
-    int finalPos;
-
-
+    int startPos = 56,
+        curPos = startPos,
+        finalPos = 15;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maze);
 
-        GridLayout mazeGrid = (GridLayout) findViewById(R.id.maze_grid);
-        int width = mazeGrid.getLayoutParams().width / MAZE_SIZE;
-        int height = mazeGrid.getLayoutParams().height / MAZE_SIZE;
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x / MAZE_SIZE;
+        int height = width;
 
+        GridLayout mazeGrid = (GridLayout) findViewById(R.id.maze_grid);
         mazeGrid.setColumnCount(MAZE_SIZE);
         mazeGrid.setRowCount(MAZE_SIZE);
+
+        ShapeDrawable path = new ShapeDrawable(new RectShape());
+        path.getPaint().setColor(Color.WHITE);
+        path.setIntrinsicHeight(height);
+        path.setIntrinsicWidth(width);
+
+        ShapeDrawable wall = new ShapeDrawable(new RectShape());
+        wall.getPaint().setColor(Color.BLACK);
+        wall.setIntrinsicHeight(height);
+        wall.setIntrinsicWidth(width);
 
         ShapeDrawable bomb = new ShapeDrawable(new RectShape());
         bomb.getPaint().setColor(Color.RED);
@@ -65,18 +74,16 @@ public class MazeActivity extends AppCompatActivity {
                 for(int i = 0; i < MAZE_SIZE; i++) {
                     ImageView cell = new ImageView(getApplicationContext());
 
-//                    if(splitLine[i].equals("0"))
-//                        square.getPaint().setColor(Color.WHITE);
-//                    else if(splitLine[i].equals("1"))
-//                        square.getPaint().setColor(Color.BLACK);
-//                    else if(splitLine[i].equals("2"))
-//                        square.getPaint().setColor(Color.RED);
-
-                    cell.setImageDrawable(bomb);
+                    if(splitLine[i].equals("0"))
+                        cell.setImageDrawable(path);
+                    else if(splitLine[i].equals("1"))
+                        cell.setImageDrawable(wall);
+                    else if(splitLine[i].equals("2"))
+                        cell.setImageDrawable(bomb);
 
                     GridLayout.LayoutParams param = new GridLayout.LayoutParams();
-                    param.height = param.WRAP_CONTENT;
-                    param.width = param.WRAP_CONTENT;
+                    param.bottomMargin = 1;
+                    param.rightMargin = 1;
                     param.setGravity(Gravity.CENTER);
                     param.columnSpec = GridLayout.spec(i);
                     param.rowSpec = GridLayout.spec(row);
@@ -97,6 +104,24 @@ public class MazeActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    // Custom view class
+    private class MazeView extends View {
+        public MazeView(Context context) { super(context); }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Rect rect = new Rect();
+
+            rect.set(0, 0, 100, 100);
+
+            Paint paint = new Paint();
+            paint.setColor(Color.CYAN);
+            paint.setStyle(Paint.Style.FILL);
+
+            canvas.drawRect(rect, paint);
         }
     }
 }
