@@ -6,21 +6,15 @@
     android:layout_height="match_parent"
     tools:context="catladies.cat_astrophe.MazeActivity">
 
-    <FrameLayout
-        android:id="@+id/screen_frame"
+    <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/maze_grid"
+        android:background="#999999"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/button_up">
 
-        <GridLayout
-            android:id="@+id/maze_grid"
-            android:background="#999999"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_above="@+id/button_up">
-
-        </GridLayout>
-    </FrameLayout>
+    </GridLayout>
 
     <Button
         android:id="@+id/button_up"
@@ -29,7 +23,6 @@
         android:layout_above="@+id/button_left"
         android:layout_toRightOf="@+id/button_left"
         android:layout_toEndOf="@+id/button_left"
-        android:onClick="moveUp"
         android:text="U" />
 
     <Button
@@ -39,7 +32,6 @@
         android:layout_above="@+id/button_down"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:onClick="moveLeft"
         android:text="L" />
 
     <Button
@@ -49,7 +41,6 @@
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/button_right"
         android:layout_toStartOf="@+id/button_right"
-        android:onClick="moveDown"
         android:text="D" />
 
     <Button
@@ -59,7 +50,6 @@
         android:layout_below="@+id/button_up"
         android:layout_toRightOf="@+id/button_up"
         android:layout_toEndOf="@+id/button_up"
-        android:onClick="moveRight"
         android:text="R" />
 
     <Button

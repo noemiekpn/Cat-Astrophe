@@ -1,8 +1,8 @@
-0 0 0 0 0 0 1 1
-0 1 1 0 1 0 1 0
-0 0 1 2 1 0 0 0
-1 0 0 0 1 1 1 0
-1 2 1 0 0 0 0 2
-1 0 1 1 1 1 0 1
-0 0 0 0 0 1 0 1
-0 1 1 1 0 0 0 1
+p p p p p p w w
+p w w p w p w f
+p p w b w p p p
+w p p p w w w p
+w b w p p p p b
+w p w w w w p w
+p p p p p w p w
+s w w w p p p w

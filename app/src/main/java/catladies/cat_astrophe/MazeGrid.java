@@ -7,9 +7,11 @@ package catladies.cat_astrophe;
 public class MazeGrid {
     private MazeCell[] mazeCells;
 
-    public MazeGrid(int mazeSize) {
+    public MazeGrid(int mazeColumns, int mazeRows) {
 
-       mazeCells = new MazeCell[mazeSize * mazeSize];
+       mazeCells = new MazeCell[mazeColumns * mazeRows];
 
     }
+
+    public MazeCell[] getMazeCells() { return mazeCells; }
 }
