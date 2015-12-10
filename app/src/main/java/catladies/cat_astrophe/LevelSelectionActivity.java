@@ -18,7 +18,7 @@ public class LevelSelectionActivity extends AppCompatActivity {
      * Start button handler
      */
     public void startGame(View view) {
-        Intent intent = new Intent(this, LevelSelectionActivity.class);
+        Intent intent = new Intent(this, MazeActivity.class);
         startActivity(intent);
     }
 }
