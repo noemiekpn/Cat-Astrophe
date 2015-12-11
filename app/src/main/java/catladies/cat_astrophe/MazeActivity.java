@@ -84,7 +84,7 @@ public class MazeActivity extends AppCompatActivity {
         }
 
         // After reading we know the square maze dimensions
-        int mazeSize = rows.size();
+        mazeSize = rows.size();
         mazeCells = new MazeCell[mazeSize * mazeSize];
 
         // Screen dimensions
@@ -125,8 +125,6 @@ public class MazeActivity extends AppCompatActivity {
 
             // For each row, set up the columns
             for(int j = 0; j < columns.length; j++) {
-                Log.d("COORDS", "(" + x + ", " + y + ")");
-
                 int index = i * mazeSize + j;
                 mazeCells[index] = new MazeCell(x, y);
 
@@ -185,18 +183,30 @@ public class MazeActivity extends AppCompatActivity {
     // Button handlers
     //--------------------------------------------------------------------------------
     public void moveUp(View view) {
+        // Check for boundaries
+        if(player.getY() - squareSide < 0) return;
+
         player.moveBy(0, -squareSide);
     }
 
     public void moveDown(View view) {
+        // Check for boundaries
+        if(player.getY() + squareSide > (mazeSize - 1) * squareSide) return;
+
         player.moveBy(0, squareSide);
     }
 
     public void moveRight(View view) {
+        // Check for boundaries
+        if(player.getX() + squareSide > (mazeSize - 1) * squareSide) return;
+
         player.moveBy(squareSide, 0);
     }
 
     public void moveLeft(View view) {
+        // Check for boundaries
+        if(player.getX() - squareSide < 0) return;
+
         player.moveBy(-squareSide, 0);
     }
 
