@@ -6,21 +6,17 @@ package catladies.cat_astrophe;
 public class MazeCell {
     int x;
     int y;
-    int size;
     boolean wall;
     boolean bomb;
 
-    public MazeCell(int x, int y, int size) {
+    public MazeCell(int x, int y) {
         this.x = x;
         this.y = y;
-        this.size = size;
     }
 
     public int getX() { return x; }
 
     public int getY() { return y; }
-
-    public int getSize() { return size; }
 
     public void setWall(boolean wall) { this.wall = wall; }
 
