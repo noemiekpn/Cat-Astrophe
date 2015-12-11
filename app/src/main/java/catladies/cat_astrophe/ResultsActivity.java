@@ -3,6 +3,7 @@ package catladies.cat_astrophe;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
@@ -22,7 +23,7 @@ public class ResultsActivity extends AppCompatActivity {
         resultsTextView.setText("You exploded " + lifeResult + " bombs in " + timeResult + " seconds.");
     }
 
-    public void returnMain() {
+    public void returnMain(View view) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
