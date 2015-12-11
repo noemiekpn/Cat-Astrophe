@@ -9,13 +9,14 @@ public class Player {
     Bitmap playerImg;
     int pos;            // The index position in the maze
     int x, y;           // The top left position of the image
-    int life;          // According to number of bombs
+    int life;           // According to number of bombs
 
-    public Player(Bitmap playerImg, int x, int y, int pos, int score) {
+    public Player(Bitmap playerImg, int x, int y, int pos, int life) {
         this.playerImg = playerImg;
         this.x = x;
         this.y = y;
         this.pos = pos;
+        this.life = life;
     }
 
     public int getX() { return x; }

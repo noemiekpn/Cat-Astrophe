@@ -1,6 +1,7 @@
 package catladies.cat_astrophe;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,9 +12,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -25,30 +26,70 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MazeActivity extends AppCompatActivity {
-    // Player variables
-    Player player;
-    int startPos = 56,          // Initial position in maze
-        curPos   = startPos,    // Passive position of player
-        finalPos = 15;          // Goal position of maze
+    private final int BOMB_TIME = 2000; // Time in milliseconds
+    int mazeSize;                   // Square maze dimension
+    int squareSide;                 // Square cell size in pixels
 
-    // Maze variables
-    private int mazeSize;       // Square maze dimension
-    int squareSide;             // Square cell size in pixels
-    MazeCell[] mazeCells;       // The matrix of cells of the maze
-    MazeView mazeView;          // Custom view for game drawing
+    int finalPos;                   // The winning position
+    int numBombs;                   // The # of bombs in the maze
+
+    ArrayList<Integer> bombCells;   // Indices of maze with bombs
+    MazeCell[] mazeCells;           // The matrix of cells of the maze
+    MazeView mazeView;              // Custom view for game drawing
+    Player player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maze);
 
+        Intent tempIntent = getIntent();
+        numBombs = tempIntent.getIntExtra(LevelSelectionActivity.NUM_BOMBS, 0);
+
+        // NOTE: Currently hard coded for prototype
         createMaze("maze_1.txt");
 
         FrameLayout screenFrame = (FrameLayout) findViewById(R.id.screen_frame);
         mazeView = new MazeView(getApplicationContext());
         screenFrame.addView(mazeView);
+
+        // After BOMB_TIME, hide all bombs
+        Timer bombTimer = new Timer();
+        bombTimer.schedule(new TimerTask() {
+            final Handler bombHandler = new Handler();
+
+            @Override
+            public void run() {
+                bombHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < bombCells.size(); i++) {
+                            int cellId = bombCells.get(i);
+                            ImageView cellView = (ImageView) findViewById(cellId);
+                            cellView.setImageDrawable(null);
+                        }
+                        mazeView.postInvalidate();
+                    }
+                });
+            }
+        }, BOMB_TIME);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Game loop
+                while(player.getPos() != finalPos && player.getLife() > 0) {
+                    mazeView.postInvalidate();
+                }
+
+                Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                startActivity(intent);
+            }
+        }).start();
     }
 
     /**
@@ -86,6 +127,7 @@ public class MazeActivity extends AppCompatActivity {
         // After reading we know the square maze dimensions
         mazeSize = rows.size();
         mazeCells = new MazeCell[mazeSize * mazeSize];
+        bombCells = new ArrayList<>();
 
         // Screen dimensions
         Display display = getWindowManager().getDefaultDisplay();
@@ -131,27 +173,39 @@ public class MazeActivity extends AppCompatActivity {
                     ImageView cellView = new ImageView(getApplicationContext());
                     cellView.setBackgroundColor(Color.parseColor("#fffdd0"));
 
-                    // Select type of square according to terrain
+                // Select type of square according to terrain
                 if (columns[j].equals("p")) {
                     mazeCells[index].setWall(false);
                     mazeCells[index].setBomb(false);
+
                 } else if (columns[j].equals("w")) {
                     mazeCells[index].setWall(true);
                     mazeCells[index].setBomb(false);
                     cellView.setImageDrawable(wall);
+
                 } else if (columns[j].equals("b")) {
                     mazeCells[index].setWall(false);
                     mazeCells[index].setBomb(true);
                     cellView.setImageDrawable(bomb);
+
+                    bombCells.add(index);
+
                 } else if (columns[j].equals("s")) {
                     mazeCells[index].setWall(false);
                     mazeCells[index].setBomb(false);
-                    player = new Player(catBitmap, x, y, index, 0);
+
+                    player = new Player(catBitmap, x, y, index, numBombs);
+
                 } else if (columns[j].equals("f")) {
                     mazeCells[index].setWall(false);
                     mazeCells[index].setBomb(false);
                     cellView.setImageDrawable(flag);
+
+                    finalPos = index;
                 }
+
+                // Set unique id
+                cellView.setId(index);
 
                 GridLayout.LayoutParams param = new GridLayout.LayoutParams();
                 param.bottomMargin = 1;
@@ -174,8 +228,6 @@ public class MazeActivity extends AppCompatActivity {
                 }
             }
         }
-
-
     }
 
     //--------------------------------------------------------------------------------
@@ -190,6 +242,12 @@ public class MazeActivity extends AppCompatActivity {
         // Check for wall
         if(mazeCells[newPos].isWall()) return;
 
+        // Check for bomb
+        if(mazeCells[newPos].hasBomb()) {
+            // Update player life
+            player.setLife(player.getLife() - 1);
+        }
+
         player.moveBy(0, -squareSide);
         player.setPos(newPos);
     }
@@ -202,6 +260,12 @@ public class MazeActivity extends AppCompatActivity {
 
         // Check for wall
         if(mazeCells[newPos].isWall()) return;
+
+        // Check for bomb
+        if(mazeCells[newPos].hasBomb()) {
+            // Update player life
+            player.setLife(player.getLife() - 1);
+        }
 
         player.moveBy(0, squareSide);
         player.setPos(newPos);
@@ -216,6 +280,12 @@ public class MazeActivity extends AppCompatActivity {
         // Check for wall
         if(mazeCells[newPos].isWall()) return;
 
+        // Check for bomb
+        if(mazeCells[newPos].hasBomb()) {
+            // Update player life
+            player.setLife(player.getLife() - 1);
+        }
+
         player.moveBy(squareSide, 0);
         player.setPos(newPos);
     }
@@ -228,6 +298,12 @@ public class MazeActivity extends AppCompatActivity {
 
         // Check for wall
         if(mazeCells[newPos].isWall()) return;
+
+        // Check for bomb
+        if(mazeCells[newPos].hasBomb()) {
+            // Update player life
+            player.setLife(player.getLife() - 1);
+        }
 
         player.moveBy(-squareSide, 0);
         player.setPos(newPos);
@@ -252,7 +328,6 @@ public class MazeActivity extends AppCompatActivity {
             paint.setStyle(Paint.Style.FILL);
 
             canvas.drawBitmap(player.getPlayerImg(), null, rect, paint);
-            postInvalidate();
         }
     }
 }
