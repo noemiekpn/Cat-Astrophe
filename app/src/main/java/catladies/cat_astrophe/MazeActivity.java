@@ -30,14 +30,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MazeActivity extends AppCompatActivity {
+    public final static String LIFE_RESULT = "catladies.cat_astrophe.LIFE_RESULT";
+    public final static String TIME_RESULT = "catladies.cat_astrophe.TIME_RESULT";
     private final int BOMB_TIME = 2000; // Time in milliseconds
+
     int mazeSize;                   // Square maze dimension
     int squareSide;                 // Square cell size in pixels
-
     int finalPos;                   // The winning position
-    int numBombs;                   // The # of bombs in the maze
 
+    int numBombs;                   // The # of bombs in the maze
     ArrayList<Integer> bombCells;   // Indices of maze with bombs
+    BitmapDrawable explosion;
+
     MazeCell[] mazeCells;           // The matrix of cells of the maze
     MazeView mazeView;              // Custom view for game drawing
     Player player;
@@ -53,9 +57,16 @@ public class MazeActivity extends AppCompatActivity {
         // NOTE: Currently hard coded for prototype
         createMaze("maze_1.txt");
 
+        // Prepare explosion drawable
+        Bitmap explosionBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.explosion);
+        explosion = new BitmapDrawable(getResources(), explosionBitmap);
+
         FrameLayout screenFrame = (FrameLayout) findViewById(R.id.screen_frame);
         mazeView = new MazeView(getApplicationContext());
         screenFrame.addView(mazeView);
+
+        // Start the a time count for user time performance
+        final long startTime = System.currentTimeMillis();
 
         // After BOMB_TIME, hide all bombs
         Timer bombTimer = new Timer();
@@ -86,7 +97,11 @@ public class MazeActivity extends AppCompatActivity {
                     mazeView.postInvalidate();
                 }
 
+                int totalTime = (int) (System.currentTimeMillis() - startTime) / 1000;
+
                 Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                intent.putExtra(LIFE_RESULT, numBombs - player.getLife());
+                intent.putExtra(TIME_RESULT, totalTime);
                 startActivity(intent);
             }
         }).start();
@@ -243,10 +258,7 @@ public class MazeActivity extends AppCompatActivity {
         if(mazeCells[newPos].isWall()) return;
 
         // Check for bomb
-        if(mazeCells[newPos].hasBomb()) {
-            // Update player life
-            player.setLife(player.getLife() - 1);
-        }
+        checkBomb(newPos);
 
         player.moveBy(0, -squareSide);
         player.setPos(newPos);
@@ -262,10 +274,7 @@ public class MazeActivity extends AppCompatActivity {
         if(mazeCells[newPos].isWall()) return;
 
         // Check for bomb
-        if(mazeCells[newPos].hasBomb()) {
-            // Update player life
-            player.setLife(player.getLife() - 1);
-        }
+        checkBomb(newPos);
 
         player.moveBy(0, squareSide);
         player.setPos(newPos);
@@ -281,10 +290,7 @@ public class MazeActivity extends AppCompatActivity {
         if(mazeCells[newPos].isWall()) return;
 
         // Check for bomb
-        if(mazeCells[newPos].hasBomb()) {
-            // Update player life
-            player.setLife(player.getLife() - 1);
-        }
+        checkBomb(newPos);
 
         player.moveBy(squareSide, 0);
         player.setPos(newPos);
@@ -300,13 +306,22 @@ public class MazeActivity extends AppCompatActivity {
         if(mazeCells[newPos].isWall()) return;
 
         // Check for bomb
-        if(mazeCells[newPos].hasBomb()) {
-            // Update player life
-            player.setLife(player.getLife() - 1);
-        }
+        checkBomb(newPos);
 
         player.moveBy(-squareSide, 0);
         player.setPos(newPos);
+    }
+
+    private void checkBomb(int pos) {
+        if(mazeCells[pos].hasBomb()) {
+
+            // Update player life
+            player.setLife(player.getLife() - 1);
+
+            // Display explosion
+            ImageView cellView = (ImageView) findViewById(pos);
+            cellView.setImageDrawable(explosion);
+        }
     }
 
     //--------------------------------------------------------------------------------
