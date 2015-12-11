@@ -146,8 +146,7 @@ public class MazeActivity extends AppCompatActivity {
                 } else if (columns[j].equals("s")) {
                     mazeCells[index].setWall(false);
                     mazeCells[index].setBomb(false);
-                    //player = new Player(catBitmap, 0, 0);
-                    player = new Player(catBitmap, x, y);
+                    player = new Player(catBitmap, x, y, index, 0);
                 } else if (columns[j].equals("f")) {
                     mazeCells[index].setWall(false);
                     mazeCells[index].setBomb(false);
@@ -186,28 +185,52 @@ public class MazeActivity extends AppCompatActivity {
         // Check for boundaries
         if(player.getY() - squareSide < 0) return;
 
+        int newPos = player.getPos() - mazeSize;
+
+        // Check for wall
+        if(mazeCells[newPos].isWall()) return;
+
         player.moveBy(0, -squareSide);
+        player.setPos(newPos);
     }
 
     public void moveDown(View view) {
         // Check for boundaries
         if(player.getY() + squareSide > (mazeSize - 1) * squareSide) return;
 
+        int newPos = player.getPos() + mazeSize;
+
+        // Check for wall
+        if(mazeCells[newPos].isWall()) return;
+
         player.moveBy(0, squareSide);
+        player.setPos(newPos);
     }
 
     public void moveRight(View view) {
         // Check for boundaries
         if(player.getX() + squareSide > (mazeSize - 1) * squareSide) return;
 
+        int newPos = player.getPos() + 1;
+
+        // Check for wall
+        if(mazeCells[newPos].isWall()) return;
+
         player.moveBy(squareSide, 0);
+        player.setPos(newPos);
     }
 
     public void moveLeft(View view) {
         // Check for boundaries
         if(player.getX() - squareSide < 0) return;
 
+        int newPos = player.getPos() - 1;
+
+        // Check for wall
+        if(mazeCells[newPos].isWall()) return;
+
         player.moveBy(-squareSide, 0);
+        player.setPos(newPos);
     }
 
     //--------------------------------------------------------------------------------
